@@ -15,7 +15,7 @@ module.exports = {
      key: "toko_id",
     },
     onUpdate: "CASCADE",
-    onDelete: "SET NULL",
+    onDelete: "CASCADE",
    },
    name: {
     allowNull: false,
