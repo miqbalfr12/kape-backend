@@ -43,15 +43,18 @@ module.exports = {
       password += charset.charAt(Math.floor(Math.random() * n));
      }
 
-     let configUser = {
-      service: "gmail",
+     let transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: true,
       auth: {
        user: process.env.EMAIL,
        pass: process.env.PASSWORD,
       },
-     };
-
-     let transporter = nodemailer.createTransport(configUser);
+      tls: {
+       rejectUnauthorized: false,
+      },
+     });
 
      let MailGenerator = new Mailgen({
       theme: {
@@ -99,7 +102,7 @@ module.exports = {
      let mail = MailGenerator.generate(response);
 
      let message = {
-      from: process.env.EMAIL,
+      from: process.env.EMAIL_FROM,
       to: payload.email,
       subject: "Daftar Akun Berhasil, Silahkan Lihat Password!",
       html: mail,
@@ -238,15 +241,18 @@ module.exports = {
      password += charset.charAt(Math.floor(Math.random() * n));
     }
 
-    let configUser = {
-     service: "gmail",
+    let transporter = nodemailer.createTransport({
+     host: process.env.EMAIL_HOST,
+     port: process.env.EMAIL_PORT,
+     secure: true,
      auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
      },
-    };
-
-    let transporter = nodemailer.createTransport(configUser);
+     tls: {
+      rejectUnauthorized: false,
+     },
+    });
 
     let MailGenerator = new Mailgen({
      theme: {
@@ -294,7 +300,7 @@ module.exports = {
     let mail = MailGenerator.generate(response);
 
     let message = {
-     from: process.env.EMAIL,
+     from: process.env.EMAIL_FROM,
      to: email,
      subject:
       "Password Akun Anda berhasil direset, Silahkan Lihat Password Baru!",
