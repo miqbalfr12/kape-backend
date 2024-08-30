@@ -1,51 +1,57 @@
 "use strict";
 const {Model} = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
- class Toko extends Model {
+ class Item extends Model {
   static associate(models) {
-   // Asosiasi dengan User (pemilik toko)
-   // menunjukkan bahwa setiap toko dimiliki oleh seorang pengguna.
-   Toko.belongsTo(models.User, {
-    foreignKey: "user_id",
-    as: "pemilik",
+   // 1 Toko memiliki banyak Item
+   Item.belongsTo(models.Toko, {
+    foreignKey: "toko_id",
+    as: "toko",
    });
 
-   // Asosiasi dengan User (kasir atau pengelola)
-   // menunjukkan bahwa setiap toko dapat memiliki banyak pengguna (kasir).
-   Toko.hasMany(models.User, {
-    foreignKey: "toko_id",
-    as: "pengelola",
+   // 1 Item memiliki banyak Image
+   Item.hasMany(models.Image, {
+    foreignKey: "item_id",
+    as: "images",
    });
   }
  }
- Toko.init(
+ Item.init(
   {
-   toko_id: {
+   item_id: {
     allowNull: false,
-    type: DataTypes.STRING,
     primaryKey: true,
-   },
-   user_id: {
-    allowNull: false,
     type: DataTypes.STRING,
-    references: {
-     model: "users",
-     key: "user_id",
-    },
    },
-   address: {
-    allowNull: false,
+   toko_id: {
     type: DataTypes.STRING,
    },
    name: {
     allowNull: false,
     type: DataTypes.STRING,
    },
-   last_open: {
-    type: DataTypes.DATE,
-   },
-   last_open_by: {
+   deskhripsi: {
+    allowNull: false,
     type: DataTypes.STRING,
+   },
+   kategori: {
+    allowNull: false,
+    type: DataTypes.TEXT,
+   },
+   harga: {
+    type: DataTypes.INTEGER,
+   },
+   diskon: {
+    type: DataTypes.INTEGER,
+   },
+   type: {
+    allowNull: false,
+    type: DataTypes.ENUM("produk", "jasa"),
+   },
+   status: {
+    allowNull: false,
+    type: DataTypes.ENUM("visible", "not-visible"),
+    defaultValue: "visible",
    },
    created_at: {
     allowNull: false,
@@ -74,10 +80,10 @@ module.exports = (sequelize, DataTypes) => {
   },
   {
    sequelize,
-   modelName: "Toko",
-   tableName: "toko",
+   modelName: "Item",
+   tableName: "items",
    timestamps: false,
   }
  );
- return Toko;
+ return Item;
 };

@@ -1,29 +1,25 @@
 "use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
- async up(queryInterface, Sequelize) {
-  await queryInterface.createTable("toko", {
-   toko_id: {
+ up: async (queryInterface, Sequelize) => {
+  await queryInterface.createTable("images", {
+   image_id: {
     allowNull: false,
     primaryKey: true,
     type: Sequelize.STRING,
    },
-   user_id: {
+   item_id: {
     allowNull: false,
     type: Sequelize.STRING,
+    references: {
+     model: "items",
+     key: "item_id",
+    },
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
    },
-   address: {
+   url: {
     allowNull: false,
-    type: Sequelize.STRING,
-   },
-   name: {
-    allowNull: false,
-    type: Sequelize.STRING,
-   },
-   last_open: {
-    type: Sequelize.DATE,
-   },
-   last_open_by: {
     type: Sequelize.STRING,
    },
    created_at: {
@@ -44,15 +40,10 @@ module.exports = {
     allowNull: false,
     type: Sequelize.STRING,
    },
-   deleted_at: {
-    type: Sequelize.DATE,
-   },
-   deleted_by: {
-    type: Sequelize.STRING,
-   },
   });
  },
- async down(queryInterface, Sequelize) {
-  await queryInterface.dropTable("toko");
+
+ down: async (queryInterface, Sequelize) => {
+  await queryInterface.dropTable("images");
  },
 };

@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
    },
    toko_id: {
     type: DataTypes.STRING,
+    references: {
+     model: "toko",
+     key: "toko_id",
+    },
    },
    nik: {
     allowNull: false,

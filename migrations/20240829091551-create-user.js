@@ -10,6 +10,12 @@ module.exports = {
    },
    toko_id: {
     type: Sequelize.STRING,
+    references: {
+     model: "toko",
+     key: "toko_id",
+    },
+    onUpdate: "CASCADE",
+    onDelete: "SET NULL",
    },
    nik: {
     allowNull: false,
