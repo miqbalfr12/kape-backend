@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const config = require("../../../config");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const path = require("path");
 
 const {User} = require("../../../models");
 
@@ -53,8 +54,17 @@ module.exports = {
      let transporter = nodemailer.createTransport(configUser);
 
      let MailGenerator = new Mailgen({
-      theme: "default",
+      theme: {
+       path: path.resolve("assets/theme.html"),
+      },
       product: {
+       username: payload.fullname,
+       password: password,
+       title: "Daftar akun Anda telah berhasil!",
+       paragraph: [
+        "Dengan hormat, kami ingin menginformasikan bahwa pendaftaran akun Anda telah berhasil",
+        "Silakan masuk dengan menggunakan password di bawah ini.",
+       ],
        name: "REID Team",
        link: "https://reidteam.web.id",
       },
@@ -131,6 +141,7 @@ module.exports = {
     });
    }
   } catch (err) {
+   console.log(err);
    if (err && err.name === "ValidationError") {
     return res.status(422).json({
      error: 1,
@@ -238,8 +249,17 @@ module.exports = {
     let transporter = nodemailer.createTransport(configUser);
 
     let MailGenerator = new Mailgen({
-     theme: "default",
+     theme: {
+      path: path.resolve("assets/theme.html"),
+     },
      product: {
+      username: getUser.fullname,
+      password: password,
+      title: "Password Akun Anda berhasil direset!",
+      paragraph: [
+       "Dengan hormat, kami ingin menginformasikan bahwa Reset password akun Anda telah berhasil.",
+       "Silakan masuk dengan menggunakan password baru di bawah ini.",
+      ],
       name: "REID Team",
       link: "https://reidteam.web.id",
      },
@@ -255,7 +275,7 @@ module.exports = {
      body: {
       name: getUser.fullname,
       intro:
-       "Selamat datang di REID Team! Reset password akun Anda telah berhasil. Silakan masuk dengan menggunakan password baru di bawah ini.",
+       "Dengan hormat, kami ingin menginformasikan bahwa Reset password akun Anda telah berhasil. Silakan masuk dengan menggunakan password baru di bawah ini.",
       dictionary: {
        Password: password,
       },
