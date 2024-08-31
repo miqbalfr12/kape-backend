@@ -21,7 +21,11 @@ module.exports = (sequelize, DataTypes) => {
     allowNull: false,
     type: DataTypes.STRING,
    },
-   url: {
+   filename: {
+    allowNull: false,
+    type: DataTypes.STRING,
+   },
+   path: {
     allowNull: false,
     type: DataTypes.STRING,
    },

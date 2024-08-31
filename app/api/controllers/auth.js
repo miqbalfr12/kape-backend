@@ -16,9 +16,34 @@ module.exports = {
  register: async (req, res, next) => {
   try {
    let payload = req.body;
-   console.log(payload);
 
    const checkNIK = await User.findOne({where: {nik: payload.nik}});
+
+   if (checkNIK && payload.role === "kasir") {
+    if (checkNIK.email !== payload.email)
+     return res.status(422).json({
+      message:
+       "Email akun yang anda tunjuk Tidak sesuai dengan NIK yang terdaftar!",
+     });
+
+    if (checkNIK.toko_id) {
+     return res.status(422).json({
+      message: "Akun yang anda tunjuk sudah mengelola toko!",
+     });
+    }
+
+    const userReq = req.user;
+
+    checkNIK.toko_id = payload.toko_id;
+    checkNIK.role = payload.role;
+    checkNIK.updated_by = userReq.user_id;
+    const dataUser = await checkNIK.save();
+
+    return res.status(201).json({
+     message: "Akun yang anda tunjuk telah diset menjadi kasir toko anda!",
+     dataUser,
+    });
+   }
 
    if (checkNIK === null) {
     const checkEmail = await User.findOne({where: {email: payload.email}});
@@ -119,7 +144,7 @@ module.exports = {
        updated_by: payload.updated_by || user_id,
       };
 
-      await User.create(payload);
+      const dataUser = await User.create(payload);
 
       transporter
        .sendMail(message)
@@ -127,6 +152,7 @@ module.exports = {
         return res.status(201).json({
          message: "Daftar berhasil, Email pendaftaran telah terkirim.",
          password,
+         dataUser,
         });
        })
        .catch((error) => {

@@ -18,7 +18,11 @@ module.exports = {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
    },
-   url: {
+   filename: {
+    allowNull: false,
+    type: Sequelize.STRING,
+   },
+   path: {
     allowNull: false,
     type: Sequelize.STRING,
    },

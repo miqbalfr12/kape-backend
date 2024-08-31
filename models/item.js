@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
    // 1 Item memiliki banyak Image
    Item.hasMany(models.Image, {
     foreignKey: "item_id",
-    as: "images",
+    as: "gambar",
    });
   }
  }
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     allowNull: false,
     type: DataTypes.STRING,
    },
-   deskhripsi: {
+   deskripsi: {
     allowNull: false,
     type: DataTypes.STRING,
    },
@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.TEXT,
    },
    harga: {
+    allowNull: false,
     type: DataTypes.INTEGER,
    },
    diskon: {

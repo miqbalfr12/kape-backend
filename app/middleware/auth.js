@@ -25,7 +25,7 @@ const isLoginUser = async (req, res, next) => {
    throw new Error();
   }
  } catch (error) {
-  res.status(401).json({
+  return res.status(401).json({
    error: "Not authorized to access this resources",
   });
  }
