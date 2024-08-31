@@ -213,7 +213,7 @@ module.exports = {
 
  createItemImage: async (req, res) => {
   if (!fs.existsSync(imgDir)) {
-   fs.mkdirSync(imgDir);
+   fs.mkdirSync(imgDir, {recursive: true});
   }
   try {
    const imageData = await Promise.all(
