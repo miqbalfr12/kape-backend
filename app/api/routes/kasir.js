@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const {isLoginUser} = require("../../middleware/auth");
-const {getItems, getItem} = require("../controllers/item");
+const {getKasir, createKasir} = require("../controllers/kasir");
 
-router.get("/", getItems);
-router.get("/:item_id", getItem);
+router.get("/", isLoginUser, getKasir);
+router.post("/", isLoginUser, createKasir);
 
 module.exports = router;

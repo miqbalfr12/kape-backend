@@ -3,15 +3,21 @@ const path = require("path");
 const config = require("../../../config");
 
 const {Toko, User, Item, Image} = require("../../../models");
-const {register} = require("./auth");
 require("dotenv").config();
 
 const imgDir = config.imagePath;
 
 module.exports = {
- getToko: async (req, res) => {
+ getToko: async (req, res, next) => {
+  if (req.params.toko_id === "item") {
+   return next(); // Lanjutkan ke rute berikutnya
+  }
+
   const dataToko = await Toko.findOne({
-   where: {user_id: req.user.user_id},
+   where: {
+    [req?.user?.user_id ? "user_id" : "toko_id"]:
+     req?.user?.user_id || req?.params?.toko_id,
+   },
    include: [
     {
      model: User,
@@ -21,20 +27,47 @@ module.exports = {
      model: User,
      as: "pengelola", // Mengambil data pengelola yang bekerja di toko ini
     },
+    {
+     model: Item,
+     as: "items", // Fetching items related to the store
+     include: [
+      {
+       model: Image,
+       as: "gambar", // Fetching images related to each item
+       attributes: ["filename"], // Fetch only the filename of the images
+      },
+     ],
+    },
    ],
   });
-  if (dataToko) res.status(200).json(dataToko);
-  else res.status(404).json({message: "Toko not found"});
+
+  if (!dataToko)
+   return res.status(404).json({
+    message: req?.user ? "Anda belum mempunyai toko" : "Toko not found",
+   });
+
+  const dataTokoJson = JSON.parse(JSON.stringify(dataToko));
+  dataTokoJson.pengelola = dataTokoJson.pengelola.filter(
+   (a) => a.role !== "pemilik"
+  );
+  dataTokoJson.items.map((d, i) => {
+   d.gambar = d.gambar.map(
+    (a) => `${process.env.BASE_URL}/images/${a.filename}`
+   )[0];
+  });
+  res.status(200).json(dataTokoJson);
  },
 
- createToko: async (req, res) => {
+ createToko: async (req, res, next) => {
   try {
    const payload = req.body;
 
    const dataToko = await Toko.findOne({where: {user_id: req.user.user_id}});
 
    if (dataToko) {
-    return res.status(422).json({message: "User already have toko", dataToko});
+    return res
+     .status(422)
+     .json({message: "Anda sudah memiliki toko", dataToko});
    } else {
     let getToko;
     do {
@@ -67,35 +100,7 @@ module.exports = {
   }
  },
 
- getKasir: async (req, res) => {
-  const dataKasir = await User.findAll({
-   where: {toko_id: req.user.toko_id, role: "kasir"},
-  });
-  if (dataKasir) res.status(200).json(dataKasir);
-  else res.status(404).json({message: "Kasir not found"});
- },
-
- createKasir: async (req, res) => {
-  try {
-   const dataToko = await Toko.findOne({where: {user_id: req.user.user_id}});
-   if (dataToko === null) {
-    return res.status(404).json({message: "User does not have toko"});
-   } else {
-    req.body.created_by = req.user.user_id;
-    req.body.updated_by = req.user.user_id;
-    req.body.role = "kasir";
-    req.body.toko_id = dataToko.toko_id;
-
-    await register(req, res);
-   }
-  } catch (error) {
-   res.status(500).json({
-    message: error.message || `Internal server error!`,
-   });
-  }
- },
-
- getItems: async (req, res) => {
+ getItems: async (req, res, next) => {
   if (!req.user.toko_id) {
    return res.status(404).json({message: "User does not have toko"});
   }
@@ -120,6 +125,8 @@ module.exports = {
 
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
 
+   if (dataItemJson.length == 0) return res.status(404).json([]);
+
    dataItemJson.map((d, i) => {
     d.toko = d.toko.name;
     d.gambar = d.gambar.map(
@@ -128,12 +135,36 @@ module.exports = {
     return dataItemJson;
    });
 
-   // Jika item ditemukan, kembalikan data beserta gambar-gambarnya
-   if (dataItemJson.length > 0) {
-    return res.status(200).json(dataItemJson);
-   } else {
-    return res.status(404).json([]); // Jika tidak ada item ditemukan
+   function cleanCategory(category) {
+    return category
+     .toLowerCase() // Convert to lowercase
+     .replace(/[-_]/g, " ") // Replace dashes and underscores with spaces
+     .replace(/[^\w\s]/g, "") // Remove punctuation
+     .trim() // Remove leading and trailing spaces
+     .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
    }
+
+   const dataType = [...new Set(dataItemJson.map((d) => d.type))];
+
+   const dataByTypeKategori = dataType.reduce((acc, t) => {
+    const categorizedItems = dataItemJson
+     .filter((a) => a.type === t)
+     .reduce((catAcc, item) => {
+      const cleanedCategory = cleanCategory(item.kategori);
+
+      if (!catAcc[cleanedCategory]) {
+       catAcc[cleanedCategory] = [];
+      }
+
+      catAcc[cleanedCategory].push(item);
+      return catAcc;
+     }, {});
+
+    acc[t] = categorizedItems;
+    return acc;
+   }, {});
+
+   return res.status(200).json(dataByTypeKategori);
   } catch (error) {
    return res
     .status(500)
@@ -141,7 +172,7 @@ module.exports = {
   }
  },
 
- getItem: async (req, res) => {
+ getItem: async (req, res, next) => {
   if (!req.user.toko_id) {
    return res.status(404).json({message: "User does not have toko"});
   }
@@ -177,7 +208,11 @@ module.exports = {
   }
  },
 
- createItem: async (req, res) => {
+ createItem: async (req, res, next) => {
+  if (!fs.existsSync(imgDir)) {
+   fs.mkdirSync(imgDir, {recursive: true});
+  }
+
   try {
    let getItem;
    do {
@@ -195,30 +230,10 @@ module.exports = {
    req.body.updated_by = req.user.user_id;
    req.body.toko_id = req.user.toko_id;
    const dataItem = await Item.create(req.body);
-   return res
-    .status(201)
-    .json({message: "Item created successfully", dataItem});
-  } catch (error) {
-   res.status(500).json({
-    message: error.message || `Internal server error!`,
-   });
-  }
- },
 
- getItemImage: async (req, res) => {
-  const dataImage = await Image.findAll({where: {item_id: req.params.item_id}});
-  if (dataImage) return res.status(200).json(dataImage);
-  else return res.status(404).json(req.params.item_id);
- },
-
- createItemImage: async (req, res) => {
-  if (!fs.existsSync(imgDir)) {
-   fs.mkdirSync(imgDir, {recursive: true});
-  }
-  try {
    const imageData = await Promise.all(
     req.files.map(async (file) => {
-     if (file.fieldname !== "image") return;
+     if (file.fieldname !== "gambar") return;
 
      const image_id = Date.now();
 
@@ -230,21 +245,23 @@ module.exports = {
 
      const dataImage = await Image.create({
       image_id: image_id,
-      item_id: req.params.item_id,
+      item_id,
       filename: newFileName,
       path: savePath,
       created_by: req.user.user_id,
       updated_by: req.user.user_id,
      });
 
-     return dataImage;
+     return `${process.env.BASE_URL}/images/${dataImage.filename}`;
     })
    );
-   return res.status(201).json(imageData);
+   const dataItemJson = JSON.parse(JSON.stringify(dataItem));
+   dataItemJson.gambar = imageData;
+   return res.status(201).json(dataItemJson);
   } catch (error) {
-   return res
-    .status(500)
-    .json({message: error.message || `Internal server error!`});
+   res.status(500).json({
+    message: error.message || `Internal server error!`,
+   });
   }
  },
 };

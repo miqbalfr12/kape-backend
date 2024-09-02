@@ -1,10 +1,13 @@
-const {Toko, User, Item, Image} = require("../../../models");
+const {Toko, Item, Image} = require("../../../models");
 require("dotenv").config();
 
 module.exports = {
- getItem: async (req, res) => {
+ getItems: async (req, res) => {
   try {
    const dataItem = await Item.findAll({
+    where: {
+     status: "visible", // Kondisi untuk hanya mengambil item dengan status "visible"
+    },
     include: [
      {
       model: Toko,
@@ -17,6 +20,17 @@ module.exports = {
       attributes: ["filename"],
      },
     ],
+    attributes: {
+     exclude: [
+      "status",
+      "created_at",
+      "created_by",
+      "updated_at",
+      "updated_by",
+      "deleted_at",
+      "deleted_by",
+     ],
+    },
    });
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
 
@@ -25,13 +39,6 @@ module.exports = {
     d.gambar = d.gambar.map(
      (a) => `${process.env.BASE_URL}/images/${a.filename}`
     )[0];
-    delete d.created_at;
-    delete d.created_by;
-    delete d.updated_at;
-    delete d.updated_by;
-    delete d.deleted_at;
-    delete d.deleted_by;
-    delete d.status;
     return dataItemJson;
    });
 
@@ -69,6 +76,38 @@ module.exports = {
    res.status(500).json({
     message: error.message || `Internal server error!`,
    });
+  }
+ },
+
+ getItem: async (req, res) => {
+  try {
+   const dataItem = await Item.findOne({
+    where: {item_id: req.params.item_id},
+    include: [
+     {
+      model: Toko,
+      as: "toko",
+      attributes: ["name"],
+     },
+     {
+      model: Image,
+      as: "gambar",
+      attributes: ["filename"],
+     },
+    ],
+   });
+   const dataItemJson = JSON.parse(JSON.stringify(dataItem));
+   dataItemJson.toko = dataItemJson.toko.name;
+   dataItemJson.gambar = dataItemJson.gambar.map(
+    (a) => `${process.env.BASE_URL}/images/${a.filename}`
+   );
+
+   if (dataItemJson) return res.status(200).json(dataItemJson);
+   else return res.status(404).json({message: "Item not found"});
+  } catch (error) {
+   return res
+    .status(500)
+    .json({message: error.message || "Internal server error!"});
   }
  },
 };

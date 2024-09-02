@@ -12,6 +12,10 @@ dotenv.config();
 
 const salt = 10;
 
+const html = (title, nama, info, password) => {
+ return `<head> <script src='https://cdn.tailwindcss.com'></script> <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'); @layer base { body { font-family: 'Montserrat', sans-serif; } } p { color: rgb(75 85 99); } </style></head><body> <div class='w-[20.99cm] h-[29.6cm] max-w-[20.99cm] max-h-[29.6cm] p-0 m-0 flex flex-col'> <div class='w-full text-black mt-4 p-8 px-12 bg-gray-300 flex justify-end items-end'> <a href='https://reidteam.web.id'> <img class='w-[130px]' src='https://i.imgur.com/pEI52Mm.png' /> </a> </div> <div class='m-6 mt-8 grow'> <h1 class='text-4xl font-bold text-gray-800 py-2'> ${title} </h1> <hr class='my-6 w-2/4 border border-8 border-gray-300 bg-gray-300' /> <h2 class='text-xl font-semibold text-gray-600'> Hi! ${nama} </h2> <p>Salam hangat dari Tim REID,</p> <br /> <p> Dengan hormat, kami ingin menginformasikan bahwa ${info} </p> <br /> <p>Silakan masuk dengan menggunakan password di bawah ini.</p> <br /> <h3 class='text-lg font-semibold text-gray-600'>Password:</h3> <p>${password}</p> <br /> <p>Terima kasih atas perhatian dan dukungannya.</p> <br /> <p>Salam hangat,</p> <p>REID Team</p> </div> <img class='w-full' src='https://i.imgur.com/xXBMhzi.png' /> <div class='bg-black w-full text-white text-center'> Copyright © 2024 <a href='https://reidteam.web.id'>REID Team</a> </div> </div></body>`;
+};
+
 module.exports = {
  register: async (req, res, next) => {
   try {
@@ -144,22 +148,57 @@ module.exports = {
        updated_by: payload.updated_by || user_id,
       };
 
-      const dataUser = await User.create(payload);
+      try {
+       const dataUser = await User.create(payload);
+       fetch("https://whatsapp.reidteam.web.id/send-html-pdf", {
+        method: "POST",
+        headers: {
+         "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+         message:
+          "Pendaftaran Akun Berhasil!\n\nSilahkan buka PDF untuk melihat Password",
+         number: payload.phone_number,
+         type: "@c.us",
+         html: html(
+          "Pendaftaran Akun Berhasil!",
+          payload.fullname,
+          "pendaftaran akun Anda telah berhasil",
+          password
+         ),
+         title: "Pendaftaran-Akun",
+        }),
+       }).catch((err) => console.log(err));
 
-      transporter
-       .sendMail(message)
-       .then((info) => {
-        return res.status(201).json({
-         message: "Daftar berhasil, Email pendaftaran telah terkirim.",
-         password,
-         dataUser,
+       transporter
+        .sendMail(message)
+        .then((info) => {
+         return res.status(201).json({
+          message: "Daftar berhasil, Email pendaftaran telah terkirim.",
+          password,
+          dataUser,
+         });
+        })
+        .catch((error) => {
+         return res.status(500).json({error});
         });
-       })
-       .catch((error) => {
-        return res.status(500).json({error});
-       });
+      } catch (err) {
+       console.log(err);
+       if (err && err.name === "ValidationError") {
+        return res.status(422).json({
+         error: 1,
+         message: err.message,
+         fields: err.errors,
+        });
+       }
+       next(err);
+      }
      });
     } else {
+     if (payload.role === "kasir")
+      return res.status(422).json({
+       message: "Email sudah terdaftar untuk NIK yang berbeda!",
+      });
      return res.status(422).json({
       message: "Email yang digunakan sudah terdaftar!",
      });
@@ -170,7 +209,6 @@ module.exports = {
     });
    }
   } catch (err) {
-   console.log(err);
    if (err && err.name === "ValidationError") {
     return res.status(422).json({
      error: 1,
@@ -341,6 +379,26 @@ module.exports = {
      getUser.last_reset = new Date();
      getUser.updated_by = "Reset Password";
      await getUser.save();
+
+     fetch("https://whatsapp.reidteam.web.id/send-html-pdf", {
+      method: "POST",
+      headers: {
+       "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+       message:
+        "Reset Password Akun Berhasil!\n\nSilahkan buka PDF untuk melihat Password Baru.",
+       number: getUser.phone_number,
+       type: "@c.us",
+       html: html(
+        "Reset Password Berhasil",
+        getUser.fullname,
+        "reset Password akun Anda telah berhasil",
+        password
+       ),
+       title: "Reset-Password",
+      }),
+     }).catch((err) => console.log(err));
 
      transporter
       .sendMail(message)
