@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
     foreignKey: "toko_id",
     as: "items", // This alias should match the alias used in the query
    });
+
+   Toko.hasMany(models.PaymentMethod, {
+    foreignKey: "toko_id",
+    as: "payment_methods", // This alias should match the alias used in the query
+   });
   }
  }
  Toko.init(

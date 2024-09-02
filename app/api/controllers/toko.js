@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const config = require("../../../config");
 
-const {Toko, User, Item, Image} = require("../../../models");
+const {Toko, User, Item, Image, PaymentMethod} = require("../../../models");
 require("dotenv").config();
 
 const imgDir = config.imagePath;
@@ -13,6 +13,36 @@ module.exports = {
    return next(); // Lanjutkan ke rute berikutnya
   }
 
+  const includeOptions = [
+   {
+    model: User,
+    as: "pemilik", // Mengambil data pemilik toko
+   },
+   {
+    model: User,
+    as: "pengelola", // Mengambil data pengelola yang bekerja di toko ini
+   },
+   {
+    model: Item,
+    as: "items", // Fetching items related to the store
+    include: [
+     {
+      model: Image,
+      as: "gambar", // Fetching images related to each item
+      attributes: ["filename"], // Fetch only the filename of the images
+     },
+    ],
+   },
+  ];
+
+  // Jika user adalah pemilik, tambahkan PaymentMethod ke dalam includeOptions
+  if (req?.user) {
+   includeOptions.push({
+    model: PaymentMethod,
+    as: "payment_methods",
+   });
+  }
+
   const dataToko = await Toko.findOne({
    where: {
     [req?.user?.role === "pemilik" ? "user_id" : "toko_id"]:
@@ -20,27 +50,7 @@ module.exports = {
       ? req?.user?.user_id
       : req?.params?.toko_id || req?.user?.toko_id,
    },
-   include: [
-    {
-     model: User,
-     as: "pemilik", // Mengambil data pemilik toko
-    },
-    {
-     model: User,
-     as: "pengelola", // Mengambil data pengelola yang bekerja di toko ini
-    },
-    {
-     model: Item,
-     as: "items", // Fetching items related to the store
-     include: [
-      {
-       model: Image,
-       as: "gambar", // Fetching images related to each item
-       attributes: ["filename"], // Fetch only the filename of the images
-      },
-     ],
-    },
-   ],
+   include: includeOptions,
   });
 
   if (!dataToko)

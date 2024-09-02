@@ -1,13 +1,55 @@
-const {Item, Transaksi, ItemTransaksi} = require("../../../models");
+const {
+ Item,
+ Transaksi,
+ ItemTransaksi,
+ PaymentMethod,
+} = require("../../../models");
 require("dotenv").config();
 
 module.exports = {
  createTransaksi: async (req, res, next) => {
+  let key;
   try {
    const payload = req.body;
    const list_item_id = payload.list_item.map((a) => a.item_id);
-   const dataItem = await Item.findAll({where: {item_id: list_item_id}});
+
+   const [dataItem, dataPayment] = await Promise.all([
+    Item.findAll({where: {item_id: list_item_id}}),
+    PaymentMethod.findAll({where: {toko_id: req.user.toko_id}}),
+   ]);
+
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
+   if (dataItemJson.length !== payload.list_item.length) {
+    return res.status(404).json({
+     message:
+      "Ada yang bermasalah saat memasukan item ke keranjang!, mohon di cek ulang.",
+    });
+   }
+
+   const dataPaymentJson = JSON.parse(JSON.stringify(dataPayment));
+
+   if (payload.payment_method !== "cash") {
+    if (!dataPayment || dataPayment.length === 0) {
+     return res.json({
+      payment: payload.payment_method,
+      message: "Payment method not found",
+     });
+    }
+
+    const choiceMethods = await dataPaymentJson.filter(
+     (method) => method.jenis === payload.payment_method
+    )[0];
+
+    console.log({choiceMethods});
+
+    if (!choiceMethods?.is_active) {
+     return res.json({
+      payment: payload.payment_method,
+      message: "Payment Method tidak aktif",
+     });
+    }
+    key = choiceMethods.key;
+   }
 
    let getTransaksi;
    do {
@@ -51,7 +93,7 @@ module.exports = {
     pelanggan: payload.pelanggan,
     total_harga,
     payment_method: payload.payment_method,
-    qr: transaksi_id,
+    qr: key ? key : null,
     created_by: req.user.user_id,
     updated_by: req.user.user_id,
    };
@@ -82,7 +124,7 @@ module.exports = {
      })
     );
 
-    transaksi.qr = `${process.env.BASE_URL}/qr/${transaksi_id}`;
+    transaksi.qr = key ? `${process.env.BASE_URL}/qr/${transaksi_id}` : null;
 
     return res.status(201).json({
      message: "Transaksi created successfully",
@@ -158,6 +200,7 @@ module.exports = {
    });
    if (!dataTransaksi) res.status(404).json({message: "Transaksi not found"});
    const dataTransaksiJson = JSON.parse(JSON.stringify(dataTransaksi));
+   dataTransaksiJson.qr = `${process.env.BASE_URL}/qr/${dataTransaksiJson.transaksi_id}`;
    return res.status(200).json(dataTransaksiJson);
   } catch (error) {
    return res

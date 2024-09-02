@@ -2,20 +2,11 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
  async up(queryInterface, Sequelize) {
-  await queryInterface.createTable("transaksi", {
-   transaksi_id: {
+  await queryInterface.createTable("payment_methods", {
+   payment_method_id: {
     allowNull: false,
     primaryKey: true,
     type: Sequelize.STRING,
-   },
-   user_id: {
-    type: Sequelize.STRING,
-    references: {
-     model: "users",
-     key: "user_id",
-    },
-    onUpdate: "CASCADE",
-    onDelete: "CASCADE",
    },
    toko_id: {
     type: Sequelize.STRING,
@@ -26,28 +17,17 @@ module.exports = {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
    },
-   pelanggan: {
-    type: Sequelize.STRING,
-   },
-   total_harga: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-   },
-   payment_method: {
+   jenis: {
     type: Sequelize.ENUM("cash", "dana", "gopay"),
-    defaultValue: "cash",
-   },
-   qr: {
-    type: Sequelize.TEXT,
-   },
-   status: {
-    type: Sequelize.ENUM("pending", "completed", "canceled"),
-    defaultValue: "pending",
-   },
-   transaksi_at: {
-    type: Sequelize.DATE,
     allowNull: false,
-    defaultValue: Sequelize.fn("now"),
+   },
+   is_active: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+   },
+   key: {
+    allowNull: false,
+    type: Sequelize.TEXT,
    },
    created_at: {
     allowNull: false,
@@ -75,7 +55,8 @@ module.exports = {
    },
   });
  },
+
  async down(queryInterface, Sequelize) {
-  await queryInterface.dropTable("transaksi");
+  await queryInterface.dropTable("payment_methods");
  },
 };
