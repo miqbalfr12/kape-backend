@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.DATE,
    },
    phone_number: {
+    allowNull: false,
     type: DataTypes.STRING,
    },
    password: {
@@ -66,6 +67,9 @@ module.exports = (sequelize, DataTypes) => {
     defaultValue: "not-verified",
    },
    last_signin: {
+    type: DataTypes.DATE,
+   },
+   last_activity: {
     type: DataTypes.DATE,
    },
    last_reset: {

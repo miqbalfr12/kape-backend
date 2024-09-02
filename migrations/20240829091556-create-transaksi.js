@@ -29,19 +29,22 @@ module.exports = {
    pelanggan: {
     type: Sequelize.STRING,
    },
-   total_amount: {
+   total_harga: {
     type: Sequelize.INTEGER,
     allowNull: false,
    },
    payment_method: {
-    type: Sequelize.STRING,
-    allowNull: false,
+    type: Sequelize.ENUM("cash", "qris"),
+    defaultValue: "cash",
+   },
+   qr: {
+    type: Sequelize.TEXT,
    },
    status: {
     type: Sequelize.ENUM("pending", "completed", "canceled"),
     defaultValue: "pending",
    },
-   transaction_date: {
+   transaksi_at: {
     type: Sequelize.DATE,
     allowNull: false,
     defaultValue: Sequelize.fn("now"),

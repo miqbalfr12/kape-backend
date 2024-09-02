@@ -47,19 +47,22 @@ module.exports = (sequelize, DataTypes) => {
    pelanggan: {
     type: DataTypes.STRING,
    },
-   total_amount: {
+   total_harga: {
     type: DataTypes.INTEGER,
     allowNull: false,
    },
    payment_method: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: DataTypes.ENUM("cash", "qris"),
+    defaultValue: "cash",
+   },
+   qr: {
+    type: DataTypes.TEXT,
    },
    status: {
     type: DataTypes.ENUM("pending", "completed", "canceled"),
     defaultValue: "pending",
    },
-   transaction_date: {
+   transaksi_at: {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: sequelize.fn("now"),

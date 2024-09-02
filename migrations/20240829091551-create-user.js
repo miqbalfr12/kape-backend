@@ -27,6 +27,7 @@ module.exports = {
     type: Sequelize.DATE,
    },
    phone_number: {
+    allowNull: false,
     type: Sequelize.STRING,
    },
    password: {
@@ -42,6 +43,9 @@ module.exports = {
     defaultValue: "not-verified",
    },
    last_signin: {
+    type: Sequelize.DATE,
+   },
+   last_activity: {
     type: Sequelize.DATE,
    },
    last_reset: {

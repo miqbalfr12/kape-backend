@@ -41,13 +41,41 @@ module.exports = (sequelize, DataTypes) => {
     onUpdate: "CASCADE",
     onDelete: "SET NULL",
    },
-   quantity: {
+   jumlah: {
     type: DataTypes.INTEGER,
     allowNull: false,
    },
-   price: {
+   jumlah_harga: {
     type: DataTypes.INTEGER,
     allowNull: false,
+   },
+   harga: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+   },
+   created_at: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    defaultValue: sequelize.fn("now"),
+   },
+   created_by: {
+    allowNull: false,
+    type: DataTypes.STRING,
+   },
+   updated_at: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    defaultValue: sequelize.fn("now"),
+   },
+   updated_by: {
+    allowNull: false,
+    type: DataTypes.STRING,
+   },
+   deleted_at: {
+    type: DataTypes.DATE,
+   },
+   deleted_by: {
+    type: DataTypes.STRING,
    },
   },
   {
