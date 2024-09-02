@@ -373,7 +373,7 @@ span {
 .header-hero {
  position: relative;
  top: 0;
- height: 800px;
+ min-height: 800px;
  background-position: bottom center;
 }
 
@@ -418,7 +418,7 @@ span {
  left: 40%;
  top: 175px;
  border-radius: 50%;
- background: #f5a050;
+ background: #f68112;
  animation: animation-1 2s linear infinite;
 }
 
@@ -449,7 +449,7 @@ span {
 @media only screen and (min-width: 768px) and (max-width: 991px),
  (max-width: 767px) {
  .header-hero-content {
-  margin-top: 30%;
+  margin-top: 20%;
  }
 }
 
@@ -497,16 +497,11 @@ span {
 }
 
 .header-image {
- position: relative;
+ display: flex;
+ align-items: center;
+ justify-content: center;
  padding-top: 80px;
  animation: bounceTop-1 3s ease infinite;
-}
-
-@media only screen and (min-width: 768px) and (max-width: 991px),
- (max-width: 767px) {
- .header-image img {
-  height: 0;
- }
 }
 
 .header-shape-1 {
