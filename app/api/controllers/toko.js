@@ -15,8 +15,10 @@ module.exports = {
 
   const dataToko = await Toko.findOne({
    where: {
-    [req?.user?.user_id ? "user_id" : "toko_id"]:
-     req?.user?.user_id || req?.params?.toko_id,
+    [req?.user?.role === "pemilik" ? "user_id" : "toko_id"]:
+     req?.user?.role === "pemilik"
+      ? req?.user?.user_id
+      : req?.params?.toko_id || req?.user?.toko_id,
    },
    include: [
     {
@@ -63,6 +65,12 @@ module.exports = {
    const payload = req.body;
 
    const dataToko = await Toko.findOne({where: {user_id: req.user.user_id}});
+
+   if (req.user?.toko_id) {
+    return res.status(422).json({
+     message: "Anda sedang mengelola sebuah toko",
+    });
+   }
 
    if (dataToko) {
     return res
@@ -125,7 +133,7 @@ module.exports = {
 
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
 
-   if (dataItemJson.length == 0) return res.status(404).json([]);
+   if (dataItemJson.length == 0) return res.status(404).json({});
 
    dataItemJson.map((d, i) => {
     d.toko = d.toko.name;
