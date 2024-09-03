@@ -277,8 +277,10 @@ module.exports = {
    dataItemJson.gambar = imageData;
    return res.status(201).json(dataItemJson);
   } catch (error) {
+   console.log(error);
    res.status(500).json({
     message: error.message || `Internal server error!`,
+    error: error,
    });
   }
  },
