@@ -250,10 +250,10 @@ module.exports = {
    const dataItem = await Item.create(req.body);
 
    const imageData = await Promise.all(
-    req.files.map(async (file) => {
+    req.files.map(async (file, i) => {
      if (file.fieldname !== "gambar") return;
 
-     const image_id = Date.now();
+     const image_id = Date.now() + i;
 
      const newFileName = `${image_id}${path.extname(file.originalname)}`;
      const savePath = path.join(imgDir, newFileName);
