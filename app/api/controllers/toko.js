@@ -36,7 +36,7 @@ module.exports = {
   ];
 
   // Jika user adalah pemilik, tambahkan PaymentMethod ke dalam includeOptions
-  if (req?.user) {
+  if (req.user) {
    includeOptions.push({
     model: PaymentMethod,
     as: "payment_methods",
