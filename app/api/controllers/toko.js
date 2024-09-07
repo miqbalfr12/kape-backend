@@ -45,17 +45,17 @@ module.exports = {
 
   const dataToko = await Toko.findOne({
    where: {
-    [req.user.role === "pemilik" ? "user_id" : "toko_id"]:
-     req.user.role === "pemilik"
-      ? req.user.user_id
-      : req.params.toko_id || req.user.toko_id,
+    [req?.user?.role === "pemilik" ? "user_id" : "toko_id"]:
+     req?.user?.role === "pemilik"
+      ? req?.user?.user_id
+      : req?.params?.toko_id || req?.user?.toko_id,
    },
    include: includeOptions,
   });
 
   if (!dataToko)
    return res.status(404).json({
-    message: req.user ? "Anda belum mempunyai toko" : "Toko not found",
+    message: req?.user ? "Anda belum mempunyai toko" : "Toko not found",
    });
 
   const dataTokoJson = JSON.parse(JSON.stringify(dataToko));
