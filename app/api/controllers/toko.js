@@ -45,10 +45,10 @@ module.exports = {
 
   const dataToko = await Toko.findOne({
    where: {
-    [req?.user?.role === "pemilik" ? "user_id" : "toko_id"]:
-     req?.user?.role === "pemilik"
-      ? req?.user?.user_id
-      : req?.params?.toko_id || req?.user?.toko_id,
+    [req.user?.role === "pemilik" ? "user_id" : "toko_id"]:
+     req.user?.role === "pemilik"
+      ? req.user?.user_id
+      : req.params?.toko_id || req.user?.toko_id,
    },
    include: includeOptions,
   });
@@ -76,7 +76,7 @@ module.exports = {
 
    const dataToko = await Toko.findOne({where: {user_id: req.user.user_id}});
 
-   if (req.user.toko_id) {
+   if (req.user?.toko_id) {
     return res.status(422).json({
      message: "Anda sedang mengelola sebuah toko",
     });
