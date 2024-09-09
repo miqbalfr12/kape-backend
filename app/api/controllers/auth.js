@@ -52,12 +52,6 @@ module.exports = {
       message: "Nomor telepon harus diisi!",
      });
     }
-
-    if (payload.nik === null || payload.nik === "") {
-     return res.status(422).json({
-      message: "NIK harus diisi! dan harus terdiri dari 16 digit!",
-     });
-    }
    }
 
    if (checkNIK && payload.role === "kasir") {
