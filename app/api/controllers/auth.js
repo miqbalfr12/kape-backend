@@ -30,12 +30,7 @@ module.exports = {
    const checkNIK = await User.findOne({where: {nik: payload.nik}});
 
    if (payload) {
-    if (
-     payload.email === null ||
-     payload.email === "" ||
-     !payload.email ||
-     payload.email.include("@") === false
-    ) {
+    if (payload.email === null || payload.email === "" || !payload.email) {
      return res.status(422).json({
       message: "Email harus diisi!",
      });
