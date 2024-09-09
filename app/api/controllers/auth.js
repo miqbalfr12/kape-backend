@@ -229,13 +229,12 @@ module.exports = {
     });
    }
   } catch (err) {
-   if (err && err.name === "ValidationError") {
-    return res.status(422).json({
-     error: 1,
-     message: err.message,
-     fields: err.errors,
-    });
-   }
+   console.log(err);
+   res.status(500).json({
+    error: 1,
+    message: err.message,
+    fields: err.errors,
+   });
    next(err);
   }
  },
