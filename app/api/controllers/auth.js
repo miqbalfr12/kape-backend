@@ -269,6 +269,7 @@ module.exports = {
       res.status(200).json({
        data: {
         token,
+        user: getUser,
        },
       });
      } else {
