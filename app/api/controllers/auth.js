@@ -53,13 +53,15 @@ module.exports = {
      });
     }
 
-    if (
-     payload.nik === null ||
-     payload.nik === "" ||
-     payload?.nik?.length < 16
-    ) {
+    if (payload.nik === null || payload.nik === "") {
      return res.status(422).json({
-      message: "NIK harus diisi, dan harus terdiri dari 16 digit!",
+      message: "NIK harus diisi! dan harus terdiri dari 16 digit!",
+     });
+    }
+
+    if (payload.nik && payload?.nik?.length < 16) {
+     return res.status(422).json({
+      message: "NIK harus terdiri dari 16 digit!",
      });
     }
    }
