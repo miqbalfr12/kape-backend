@@ -29,6 +29,31 @@ module.exports = {
 
    const checkNIK = await User.findOne({where: {nik: payload.nik}});
 
+   if (payload) {
+    if (
+     payload.email === null ||
+     payload.email === "" ||
+     !payload.email ||
+     payload.email.include("@") === false
+    ) {
+     return res.status(422).json({
+      message: "Email harus diisi!",
+     });
+    }
+
+    if (payload.password === null || payload.password === "") {
+     return res.status(422).json({
+      message: "Password harus diisi!",
+     });
+    }
+
+    if (payload.phone_number === null || payload.phone_number === "") {
+     return res.status(422).json({
+      message: "Nomor telepon harus diisi!",
+     });
+    }
+   }
+
    if (checkNIK && payload.role === "kasir") {
     if (checkNIK.email !== payload.email)
      return res.status(422).json({
