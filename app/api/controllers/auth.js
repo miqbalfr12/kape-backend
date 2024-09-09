@@ -58,12 +58,6 @@ module.exports = {
       message: "NIK harus diisi! dan harus terdiri dari 16 digit!",
      });
     }
-
-    if (payload.nik && payload?.nik?.length < 16) {
-     return res.status(422).json({
-      message: "NIK harus terdiri dari 16 digit!",
-     });
-    }
    }
 
    if (checkNIK && payload.role === "kasir") {
