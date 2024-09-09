@@ -487,8 +487,13 @@
                  <div> </div>
                  <div><%- product.paragraph[1] %></div>
                  <div> </div>
+                 <% if (product.password) { %>
                  <div><b>Password:</b></div>
                  <div><%- product.password %></div>
+                 <% } %> <% if (product.email) { %>
+                 <div><b>Email:</b></div>
+                 <div><%- product.email %></div>
+                 <% } %>
                  <div> </div>
                  <div>Terima kasih atas perhatian dan dukungannya.</div>
                  <div> </div>

@@ -12,8 +12,14 @@ dotenv.config();
 
 const salt = 10;
 
-const html = (title, nama, info, password) => {
- return `<head> <script src='https://cdn.tailwindcss.com'></script> <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'); @layer base { body { font-family: 'Montserrat', sans-serif; } } p { color: rgb(75 85 99); } </style></head><body> <div class='w-[20.99cm] h-[29.6cm] max-w-[20.99cm] max-h-[29.6cm] p-0 m-0 flex flex-col'> <div class='w-full text-black mt-4 p-8 px-12 bg-gray-300 flex justify-end items-end'> <a href='https://reidteam.web.id'> <img class='w-[130px]' src='https://i.imgur.com/pEI52Mm.png' /> </a> </div> <div class='m-6 mt-8 grow'> <h1 class='text-4xl font-bold text-gray-800 py-2'> ${title} </h1> <hr class='my-6 w-2/4 border border-8 border-gray-300 bg-gray-300' /> <h2 class='text-xl font-semibold text-gray-600'> Hi! ${nama} </h2> <p>Salam hangat dari Tim REID,</p> <br /> <p> Dengan hormat, kami ingin menginformasikan bahwa ${info} </p> <br /> <p>Silakan masuk dengan menggunakan password di bawah ini.</p> <br /> <h3 class='text-lg font-semibold text-gray-600'>Password:</h3> <p>${password}</p> <br /> <p>Terima kasih atas perhatian dan dukungannya.</p> <br /> <p>Salam hangat,</p> <p>REID Team</p> </div> <img class='w-full' src='https://i.imgur.com/xXBMhzi.png' /> <div class='bg-black w-full text-white text-center'> Copyright © 2024 <a href='https://reidteam.web.id'>REID Team</a> </div> </div></body>`;
+const html = (title, nama, info, password, email) => {
+ return `<head> <script src='https://cdn.tailwindcss.com'></script> <style> @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap'); @layer base { body { font-family: 'Montserrat', sans-serif; } } p { color: rgb(75 85 99); } </style></head><body> <div class='w-[20.99cm] h-[29.6cm] max-w-[20.99cm] max-h-[29.6cm] p-0 m-0 flex flex-col'> <div class='w-full text-black mt-4 p-8 px-12 bg-gray-300 flex justify-end items-end'> <a href='https://reidteam.web.id'> <img class='w-[130px]' src='https://i.imgur.com/pEI52Mm.png' /> </a> </div> <div class='m-6 mt-8 grow'> <h1 class='text-4xl font-bold text-gray-800 py-2'> ${title} </h1> <hr class='my-6 w-2/4 border border-8 border-gray-300 bg-gray-300' /> <h2 class='text-xl font-semibold text-gray-600'> Hi! ${nama} </h2> <p>Salam hangat dari Tim REID,</p> <br /> <p> Dengan hormat, kami ingin menginformasikan bahwa ${info} </p> <br /> <p>Silakan masuk dengan menggunakan ${
+  password ? "password" : "email"
+ } di bawah ini.</p> <br /> <h3 class='text-lg font-semibold text-gray-600'>${
+  password ? "Password" : "Email"
+ }:</h3> <p>${
+  password ? password : email
+ }</p> <br /> <p>Terima kasih atas perhatian dan dukungannya.</p> <br /> <p>Salam hangat,</p> <p>REID Team</p> </div> <img class='w-full' src='https://i.imgur.com/xXBMhzi.png' /> <div class='bg-black w-full text-white text-center'> Copyright © 2024 <a href='https://reidteam.web.id'>REID Team</a> </div> </div></body>`;
 };
 
 module.exports = {
@@ -64,14 +70,6 @@ module.exports = {
       getUser = await User.findOne({where: {user_id}});
      } while (getUser !== null);
 
-     var length = 15;
-     charset =
-      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-     password = "";
-     for (var i = 0, n = charset.length; i < length; ++i) {
-      password += charset.charAt(Math.floor(Math.random() * n));
-     }
-
      let transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
@@ -91,11 +89,11 @@ module.exports = {
       },
       product: {
        username: payload.fullname,
-       password: password,
+       email: payload.email,
        title: "Daftar akun Anda telah berhasil!",
        paragraph: [
         "Dengan hormat, kami ingin menginformasikan bahwa pendaftaran akun Anda telah berhasil",
-        "Silakan masuk dengan menggunakan password di bawah ini.",
+        "Silakan masuk dengan menggunakan Email di bawah ini.",
        ],
        name: "REID Team",
        link: "https://reidteam.web.id",
@@ -112,10 +110,7 @@ module.exports = {
       body: {
        name: payload.fullname,
        intro:
-        "Selamat datang di REID Team! Daftar akun Anda telah berhasil. Silakan masuk dengan menggunakan password di bawah ini.",
-       dictionary: {
-        Password: password,
-       },
+        "Selamat datang di REID Team! Daftar akun Anda telah berhasil. Silakan masuk dengan menggunakan Email di bawah ini.",
        action: {
         instructions: "Klik tombol di bawah untuk melanjutkan ke proses masuk.",
         button: {
@@ -137,7 +132,7 @@ module.exports = {
       html: mail,
      };
 
-     bcrypt.hash(password, salt, async (err, hash) => {
+     bcrypt.hash(payload.password, salt, async (err, hash) => {
       if (err) throw error;
 
       payload = {
@@ -156,15 +151,15 @@ module.exports = {
          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-         message:
-          "Pendaftaran Akun Berhasil!\n\nSilahkan buka PDF untuk melihat Password",
+         message: "Pendaftaran Akun Berhasil!",
          number: payload.phone_number,
          type: "@c.us",
          html: html(
           "Pendaftaran Akun Berhasil!",
           payload.fullname,
           "pendaftaran akun Anda telah berhasil",
-          password
+          false,
+          payload.email
          ),
          title: "Pendaftaran-Akun",
         }),
@@ -175,7 +170,7 @@ module.exports = {
         .then((info) => {
          return res.status(201).json({
           message: "Daftar berhasil, Email pendaftaran telah terkirim.",
-          password,
+          password: payload.password,
           dataUser,
          });
         })
@@ -346,9 +341,6 @@ module.exports = {
       name: getUser.fullname,
       intro:
        "Dengan hormat, kami ingin menginformasikan bahwa Reset password akun Anda telah berhasil. Silakan masuk dengan menggunakan password baru di bawah ini.",
-      dictionary: {
-       Password: password,
-      },
       action: {
        instructions: "Klik tombol di bawah untuk melanjutkan ke proses masuk.",
        button: {
