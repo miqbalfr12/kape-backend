@@ -175,7 +175,7 @@ module.exports = {
          });
         })
         .catch((error) => {
-         return res.status(500).json({error});
+         return res.status(500).json({error, message: error.message});
         });
       } catch (err) {
        console.log(err);
