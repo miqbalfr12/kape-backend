@@ -52,7 +52,12 @@ module.exports = {
       message: "Nomor telepon harus diisi!",
      });
     }
-    if (payload.nik === null || payload.nik === "" || payload.nik.length < 16) {
+
+    if (
+     payload.nik === null ||
+     payload.nik === "" ||
+     payload?.nik?.length < 16
+    ) {
      return res.status(422).json({
       message: "NIK harus diisi, dan harus terdiri dari 16 digit!",
      });
