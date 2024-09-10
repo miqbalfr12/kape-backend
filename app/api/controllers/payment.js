@@ -84,24 +84,22 @@ module.exports = {
       height: image.height,
      };
 
-     const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-
-     if (qrCode) {
-      req.body.key = qrCode.data;
-      req.body.created_by = req.user.user_id;
-      req.body.updated_by = req.user.user_id;
-      try {
+     try {
+      const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+      if (qrCode) {
+       req.body.key = qrCode.data;
+       req.body.created_by = req.user.user_id;
+       req.body.updated_by = req.user.user_id;
        const dataPayment = await PaymentMethod.create(req.body);
 
        return res.status(201).json({
         message: "Payment method created",
         dataPayment,
        });
-      } catch (error) {
-       return res.status(500).json({
-        message: error.message || "Internal server error!",
-       });
       }
+     } catch (error) {
+      console.log(error);
+      return res.status(500).json({message: "Error processing the image file"});
      }
     });
    });
