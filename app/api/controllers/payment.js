@@ -93,54 +93,18 @@ module.exports = {
       try {
        const dataPayment = await PaymentMethod.create(req.body);
 
-       res.status(201).json({
+       return res.status(201).json({
         message: "Payment method created",
         dataPayment,
        });
       } catch (error) {
-       res.status(500).json({
+       return res.status(500).json({
         message: error.message || "Internal server error!",
        });
-       next(error);
       }
      }
     });
    });
-
-   // Menghapus file setelah respons dikirim
-
-   //  req.body.created_by = req.user.user_id;
-   //  req.body.updated_by = req.user.user_id;
-   //  req.body.toko_id = req.user.toko_id;
-   //  const dataItem = await Item.create(req.body);
-
-   //  const imageData = await Promise.all(
-   //   req.files.map(async (file) => {
-   //    if (file.fieldname !== "gambar") return;
-
-   //    const image_id = Date.now();
-
-   //    const newFileName = `${image_id}${path.extname(file.originalname)}`;
-   //    const savePath = path.join(imgDir, newFileName);
-
-   //    fs.copyFileSync(file.path, savePath);
-   //    fs.unlinkSync(file.path);
-
-   //    const dataImage = await PaymentMethod.create({
-   //     payment_method_id,
-   //     item_id,
-   //     filename: newFileName,
-   //     path: savePath,
-   //     created_by: req.user.user_id,
-   //     updated_by: req.user.user_id,
-   //    });
-
-   //    return `${process.env.BASE_URL}/images/${dataImage.filename}`;
-   //   })
-   //  );
-   //  const dataItemJson = JSON.parse(JSON.stringify(dataItem));
-   //  dataItemJson.gambar = imageData;
-   //  return res.status(201).json(dataItemJson);
   } catch (error) {
    res.status(500).json({
     message: error.message || `Internal server error!`,
