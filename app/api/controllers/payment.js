@@ -100,6 +100,8 @@ module.exports = {
         message: "Payment method created",
         dataPayment,
        });
+      } else {
+       return res.status(422).json({message: "QR code not found"});
       }
      } catch (error) {
       console.log(error);
