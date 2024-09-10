@@ -67,7 +67,7 @@ module.exports = {
    const image_id = Date.now();
 
    if (!req.file) {
-    return res.status(400).json({message: "No image file uploaded"});
+    return res.status(422).json({message: "No image file uploaded"});
    }
 
    const newFileName = `${image_id}${path.extname(req.file.originalname)}`;
