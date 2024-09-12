@@ -249,6 +249,10 @@ module.exports = {
    req.body.toko_id = req.user.toko_id;
    const dataItem = await Item.create(req.body);
 
+   if (!req.files) {
+    return res.status(422).json({message: "No images file uploaded"});
+   }
+
    const imageData = await Promise.all(
     req.files.map(async (file, i) => {
      if (file.fieldname !== "gambar") return;
