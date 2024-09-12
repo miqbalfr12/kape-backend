@@ -3,6 +3,9 @@ const path = require("path");
 const config = require("../../../config");
 
 const {Toko, User, Item, Image, PaymentMethod} = require("../../../models");
+
+const cleanCategory = require("../../../helper/clean-category");
+
 require("dotenv").config();
 
 const imgDir = config.imagePath;
@@ -63,10 +66,36 @@ module.exports = {
    (a) => a.role !== "pemilik"
   );
   dataTokoJson.items.map((d, i) => {
+   d.toko = dataToko.name;
    d.gambar = d.gambar.map(
     (a) => `${process.env.BASE_URL}/images/${a.filename}`
    )[0];
   });
+
+  const dataItemJson = JSON.parse(JSON.stringify(dataTokoJson.items));
+
+  const dataType = [...new Set(dataItemJson.map((d) => d.type))];
+
+  const dataByTypeKategori = dataType.reduce((acc, t) => {
+   const categorizedItems = dataItemJson
+    .filter((a) => a.type === t)
+    .reduce((catAcc, item) => {
+     const cleanedCategory = cleanCategory(item.kategori);
+
+     if (!catAcc[cleanedCategory]) {
+      catAcc[cleanedCategory] = [];
+     }
+
+     catAcc[cleanedCategory].push(item);
+     return catAcc;
+    }, {});
+
+   acc[t] = categorizedItems;
+   return acc;
+  }, {});
+
+  dataTokoJson.items = dataByTypeKategori;
+
   res.status(200).json(dataTokoJson);
  },
 
@@ -152,15 +181,6 @@ module.exports = {
     )[0];
     return dataItemJson;
    });
-
-   function cleanCategory(category) {
-    return category
-     .toLowerCase() // Convert to lowercase
-     .replace(/[-_]/g, " ") // Replace dashes and underscores with spaces
-     .replace(/[^\w\s]/g, "") // Remove punctuation
-     .trim() // Remove leading and trailing spaces
-     .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
-   }
 
    const dataType = [...new Set(dataItemJson.map((d) => d.type))];
 
