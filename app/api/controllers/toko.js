@@ -2,7 +2,14 @@ const fs = require("fs");
 const path = require("path");
 const config = require("../../../config");
 
-const {Toko, User, Item, Image, PaymentMethod} = require("../../../models");
+const {
+ Toko,
+ User,
+ Item,
+ Image,
+ PaymentMethod,
+ Transaksi,
+} = require("../../../models");
 
 const cleanCategory = require("../../../helper/clean-category");
 const {where} = require("sequelize");
@@ -45,6 +52,10 @@ module.exports = {
    includeOptions.push({
     model: PaymentMethod,
     as: "payment_methods",
+   });
+   includeOptions.push({
+    model: Transaksi,
+    as: "transaksi",
    });
   }
 
@@ -95,6 +106,13 @@ module.exports = {
    acc[t] = categorizedItems;
    return acc;
   }, {});
+
+  if (req?.user) {
+   dataTokoJson.balance = dataTokoJson.transaksi
+    .map((a) => a.total_harga)
+    .reduce((a, b) => a + b, 0);
+   dataTokoJson.transaksi = dataTokoJson.transaksi.length;
+  }
 
   dataTokoJson.items = dataByTypeKategori;
 
