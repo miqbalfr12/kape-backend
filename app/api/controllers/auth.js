@@ -103,21 +103,47 @@ module.exports = {
       },
      });
 
+     let password = "";
+     if (
+      payload.password === null ||
+      payload.password === "" ||
+      !payload.password
+     ) {
+      var length = 15;
+      charset =
+       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+      for (var i = 0, n = charset.length; i < length; ++i) {
+       password += charset.charAt(Math.floor(Math.random() * n));
+      }
+      payload.password = password;
+     }
+
+     const mailProduk = {
+      username: payload.fullname,
+      title: "Daftar akun Anda telah berhasil!",
+      name: "REID Team",
+      link: "https://reidteam.web.id",
+     };
+
+     if (password) {
+      mailProduk.password = password;
+      mailProduk.paragraph = [
+       "Dengan hormat, kami ingin menginformasikan bahwa pendaftaran akun Anda telah berhasil",
+       "Silakan masuk dengan menggunakan Password di bawah ini.",
+      ];
+     } else {
+      mailProduk.email = payload.email;
+      mailProduk.paragraph = [
+       "Dengan hormat, kami ingin menginformasikan bahwa pendaftaran akun Anda telah berhasil",
+       "Silakan masuk dengan menggunakan Email di bawah ini.",
+      ];
+     }
+
      let MailGenerator = new Mailgen({
       theme: {
        path: path.resolve("assets/theme.html"),
       },
-      product: {
-       username: payload.fullname,
-       email: payload.email,
-       title: "Daftar akun Anda telah berhasil!",
-       paragraph: [
-        "Dengan hormat, kami ingin menginformasikan bahwa pendaftaran akun Anda telah berhasil",
-        "Silakan masuk dengan menggunakan Email di bawah ini.",
-       ],
-       name: "REID Team",
-       link: "https://reidteam.web.id",
-      },
+      product: mailProduk,
      });
 
      let response = {
@@ -148,12 +174,14 @@ module.exports = {
      let message = {
       from: process.env.EMAIL_FROM,
       to: payload.email,
-      subject: "Daftar Akun Berhasil, Silahkan Lihat Password!",
+      subject: password
+       ? "Daftar Akun Berhasil, Silahkan Lihat Password!"
+       : "Daftar Akun Berhasil!",
       html: mail,
      };
 
      bcrypt.hash(payload.password, salt, async (err, hash) => {
-      if (err) throw error;
+      if (err) throw err;
 
       payload = {
        ...payload,
@@ -178,8 +206,8 @@ module.exports = {
           "Pendaftaran Akun Berhasil!",
           payload.fullname,
           "pendaftaran akun Anda telah berhasil",
-          false,
-          payload.email
+          password || false,
+          password ? payload.password : payload.email
          ),
          title: "Pendaftaran-Akun",
         }),
@@ -190,7 +218,7 @@ module.exports = {
         .then((info) => {
          return res.status(201).json({
           message: "Daftar berhasil, Email pendaftaran telah terkirim.",
-          password: payload.password,
+          password: password ? password : payload.password,
           dataUser,
          });
         })
