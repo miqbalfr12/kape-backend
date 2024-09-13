@@ -144,6 +144,15 @@ module.exports = {
   try {
    const dataTransaksi = await Transaksi.findAll({
     where: {toko_id: req.user.toko_id},
+    include: [
+     {
+      model: User,
+      as: "kasir",
+      attributes: {
+       exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
+      },
+     },
+    ],
     attributes: {
      exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
     },
@@ -151,6 +160,7 @@ module.exports = {
    if (!dataTransaksi) res.status(404).json({message: "Transaksi not found"});
    const dataTransaksiJson = JSON.parse(JSON.stringify(dataTransaksi));
    dataTransaksiJson.map((d, i) => {
+    d.kasir = d.kasir.fullname;
     d.qr = `${process.env.BASE_URL}/qr/${d.transaksi_id}`;
    });
 
@@ -184,7 +194,7 @@ module.exports = {
      },
      {
       model: User,
-      as: "user",
+      as: "kasir",
       attributes: {
        exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
       },
