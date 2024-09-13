@@ -109,6 +109,7 @@ module.exports = {
 
   if (req?.user) {
    dataTokoJson.balance = dataTokoJson.transaksi
+    .filter((a) => a.status === "completed")
     .map((a) => a.total_harga)
     .reduce((a, b) => a + b, 0);
    dataTokoJson.transaksi = dataTokoJson.transaksi.length;
