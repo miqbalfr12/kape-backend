@@ -5,6 +5,7 @@ const config = require("../../../config");
 const {Toko, User, Item, Image, PaymentMethod} = require("../../../models");
 
 const cleanCategory = require("../../../helper/clean-category");
+const {where} = require("sequelize");
 
 require("dotenv").config();
 
@@ -28,6 +29,7 @@ module.exports = {
    {
     model: Item,
     as: "items", // Fetching items related to the store
+    where: {deleted_by: null},
     include: [
      {
       model: Image,
