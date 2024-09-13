@@ -37,6 +37,7 @@ module.exports = {
     model: Item,
     as: "items", // Fetching items related to the store
     where: {deleted_by: null},
+    required: false,
     include: [
      {
       model: Image,
