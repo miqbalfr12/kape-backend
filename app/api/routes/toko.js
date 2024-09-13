@@ -8,6 +8,7 @@ const {
  getItems,
  getItem,
  createItem,
+ deleteItem,
 } = require("../controllers/toko");
 const multer = require("multer");
 
@@ -23,5 +24,6 @@ router.post(
  createItem
 );
 router.get("/item/:item_id", isLoginUser, getItem);
+router.delete("/item/:item_id", isLoginUser, deleteItem);
 
 module.exports = router;

@@ -155,7 +155,7 @@ module.exports = {
   try {
    // Mengambil semua item yang dimiliki oleh toko tertentu
    const dataItem = await Item.findAll({
-    where: {toko_id: req.user.toko_id},
+    where: {toko_id: req.user.toko_id, deleted_by: null},
     include: [
      {
       model: Toko,
@@ -169,6 +169,10 @@ module.exports = {
      },
     ],
    });
+
+   if (!dataItem) {
+    return res.status(404).json({message: "Item not found"});
+   }
 
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
 
@@ -217,7 +221,11 @@ module.exports = {
 
   try {
    const dataItem = await Item.findOne({
-    where: {toko_id: req.user.toko_id, item_id: req.params.item_id},
+    where: {
+     toko_id: req.user.toko_id,
+     item_id: req.params.item_id,
+     deleted_by: null,
+    },
     include: [
      {
       model: Toko,
@@ -231,14 +239,17 @@ module.exports = {
      },
     ],
    });
+   if (!dataItem) {
+    return res.status(404).json({message: "Item not found"});
+   }
+
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
    dataItemJson.toko = dataItemJson.toko.name;
    dataItemJson.gambar = dataItemJson.gambar.map(
     (a) => `${process.env.BASE_URL}/images/${a.filename}`
    );
 
-   if (dataItemJson) return res.status(200).json(dataItemJson);
-   else return res.status(404).json({message: "Item not found"});
+   res.status(200).json(dataItemJson);
   } catch (error) {
    return res
     .status(500)
@@ -306,6 +317,28 @@ module.exports = {
     message: error.message || `Internal server error!`,
     error: error,
    });
+  }
+ },
+
+ deleteItem: async (req, res, next) => {
+  if (!req.user.toko_id) {
+   return res.status(404).json({message: "User does not have toko"});
+  }
+  try {
+   const dataItem = await Item.findOne({
+    where: {toko_id: req.user.toko_id, item_id: req.params.item_id},
+   });
+
+   dataItem.deleted_at = new Date();
+   dataItem.deleted_by = req.user.user_id;
+
+   await dataItem.save();
+   if (dataItem) return res.status(204).json(dataItem);
+   else return res.status(404).json({message: "Item not found"});
+  } catch (error) {
+   return res
+    .status(500)
+    .json({message: error.message || "Internal server error!"});
   }
  },
 };

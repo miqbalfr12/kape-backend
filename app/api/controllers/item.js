@@ -7,7 +7,8 @@ module.exports = {
   try {
    const dataItem = await Item.findAll({
     where: {
-     status: "visible", // Kondisi untuk hanya mengambil item dengan status "visible"
+     status: "visible", // Kondisi untuk hanya mengambil item dengan status "visible",
+     deleted_by: null,
     },
     include: [
      {
@@ -33,6 +34,11 @@ module.exports = {
      ],
     },
    });
+
+   if (!dataItem) {
+    return res.status(404).json({message: "Item not found"});
+   }
+
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
 
    dataItemJson.map((d, i) => {
@@ -74,7 +80,7 @@ module.exports = {
  getItem: async (req, res) => {
   try {
    const dataItem = await Item.findOne({
-    where: {item_id: req.params.item_id},
+    where: {item_id: req.params.item_id, deleted_by: null},
     include: [
      {
       model: Toko,
@@ -88,14 +94,17 @@ module.exports = {
      },
     ],
    });
+   if (!dataItem) {
+    return res.status(404).json({message: "Item not found"});
+   }
+
    const dataItemJson = JSON.parse(JSON.stringify(dataItem));
    dataItemJson.toko = dataItemJson.toko.name;
    dataItemJson.gambar = dataItemJson.gambar.map(
     (a) => `${process.env.BASE_URL}/images/${a.filename}`
    );
 
-   if (dataItemJson) return res.status(200).json(dataItemJson);
-   else return res.status(404).json({message: "Item not found"});
+   return res.status(200).json(dataItemJson);
   } catch (error) {
    return res
     .status(500)
