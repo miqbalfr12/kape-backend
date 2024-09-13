@@ -3,6 +3,7 @@ const {
  Transaksi,
  ItemTransaksi,
  PaymentMethod,
+ User,
 } = require("../../../models");
 require("dotenv").config();
 
@@ -144,14 +145,7 @@ module.exports = {
    const dataTransaksi = await Transaksi.findAll({
     where: {toko_id: req.user.toko_id},
     attributes: {
-     exclude: [
-      "created_at",
-      "created_by",
-      "updated_at",
-      "updated_by",
-      "deleted_at",
-      "deleted_by",
-     ],
+     exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
     },
    });
    if (!dataTransaksi) res.status(404).json({message: "Transaksi not found"});
@@ -171,14 +165,7 @@ module.exports = {
  getTransaksiDetail: async (req, res) => {
   try {
    const attributes = {
-    exclude: [
-     "created_at",
-     "created_by",
-     "updated_at",
-     "updated_by",
-     "deleted_at",
-     "deleted_by",
-    ],
+    exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
    };
    const dataTransaksi = await Transaksi.findOne({
     where: {transaksi_id: req.params.transaksi_id},
@@ -194,6 +181,13 @@ module.exports = {
        },
       ],
       attributes,
+     },
+     {
+      model: User,
+      as: "user",
+      attributes: {
+       exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
+      },
      },
     ],
     attributes,
