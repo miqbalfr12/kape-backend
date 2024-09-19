@@ -47,7 +47,7 @@ router.get("/:transaksi_id", async function (req, res, next) {
 
   const imagePath = path.join(__dirname, "../../../public/logo.png");
   console.log(imagePath);
-  const qrCode = await create(dataTransaksi.qr, imagePath, 100);
+  const qrCode = await create(dataTransaksi.qr, imagePath, 50);
   res.setHeader("Content-Type", "image/png");
 
   const base64Image = qrCode.split(";base64,").pop();
