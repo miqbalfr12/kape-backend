@@ -90,11 +90,20 @@ module.exports = {
 
   const dataType = [...new Set(dataItemJson.map((d) => d.type))];
 
+  const dataTypeKategori = dataType.reduce((acc, key) => {
+   acc[key] = [];
+   return acc;
+  }, {});
+  console.log(dataTypeKategori);
+
   const dataByTypeKategori = dataType.reduce((acc, t) => {
    const categorizedItems = dataItemJson
     .filter((a) => a.type === t)
     .reduce((catAcc, item) => {
      const cleanedCategory = cleanCategory(item.kategori);
+
+     console.log(t, cleanedCategory);
+     dataTypeKategori[t].push(cleanedCategory);
 
      if (!catAcc[cleanedCategory]) {
       catAcc[cleanedCategory] = [];
@@ -107,8 +116,10 @@ module.exports = {
    acc[t] = categorizedItems;
    return acc;
   }, {});
+  console.log(dataTypeKategori);
 
   if (req?.user) {
+   dataTokoJson.kategori = dataTypeKategori;
    dataTokoJson.balance = dataTokoJson.transaksi
     .filter((a) => a.status === "completed")
     .map((a) => a.total_harga)
