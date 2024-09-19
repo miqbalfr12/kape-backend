@@ -363,4 +363,140 @@ module.exports = {
     .json({message: error.message || "Internal server error!"});
   }
  },
+
+ editItem: async (req, res, next) => {
+  if (!fs.existsSync(imgDir)) {
+   fs.mkdirSync(imgDir, {recursive: true});
+  }
+
+  if (!req.user.toko_id) {
+   return res.status(404).json({message: "User does not have toko"});
+  }
+
+  try {
+   const dataItem = await Item.findOne({
+    where: {toko_id: req.user.toko_id, item_id: req.params.item_id},
+    include: [
+     {
+      model: Image,
+      as: "gambar",
+      attributes: ["filename"],
+     },
+    ],
+   });
+   if (!dataItem) {
+    return res.status(404).json({message: "Item not found"});
+   }
+
+   const payload = {
+    ...req.body,
+    updated_at: new Date(),
+    updated_by: req.user.user_id,
+   };
+
+   for (const [key, value] of Object.entries(payload)) {
+    if (value) {
+     dataItem[key] = value;
+    }
+   }
+
+   const listDataGambar = dataItem.gambar;
+
+   if (req.files.gambar) {
+    const listFilename = listDataGambar.map((item) => item.filename);
+    console.log(listFilename);
+    for (const [index, file] of req.files.gambar.entries()) {
+     console.log(file.originalname);
+     console.log(listFilename.includes(file.originalname));
+     if (listFilename.includes(file.originalname)) {
+      console.log("edit image " + file.originalname);
+      const filename = file.originalname;
+      const image_id = filename.split(".")[0];
+      const newFileName = `${image_id}${path.extname(file.originalname)}`;
+      const savePath = path.join(imgDir, newFileName);
+      fs.copyFileSync(file.path, savePath);
+      fs.unlinkSync(file.path);
+      const imageUp = await Image.update(
+       {
+        filename: newFileName,
+        path: savePath,
+        updated_by: req.user.user_id,
+        updated_at: new Date(),
+       },
+       {
+        where: {
+         image_id: image_id,
+        },
+       }
+      );
+      console.log(imageUp);
+     } else {
+      console.log("create");
+      const image_id = Date.now() + index;
+      const newFileName = `${image_id}${path.extname(file.originalname)}`;
+      const savePath = path.join(imgDir, newFileName);
+      fs.copyFileSync(file.path, savePath);
+      fs.unlinkSync(file.path);
+
+      await Image.create({
+       image_id: image_id,
+       item_id: req.params.item_id,
+       filename: newFileName,
+       path: savePath,
+       created_by: req.user.user_id,
+       updated_by: req.user.user_id,
+      });
+     }
+    }
+   }
+
+   if (payload?.["delete-image"]) {
+    (Array.isArray(payload["delete-image"])
+     ? payload["delete-image"]
+     : [payload["delete-image"]]
+    ).forEach(async (url) => {
+     const filename = url.split("/").pop();
+     listDataGambar.map((item, index) => {
+      if (item.filename === filename) {
+       const deteleImageId = filename.split(".")[0];
+       Image.destroy({
+        where: {
+         image_id: deteleImageId,
+        },
+       });
+       console.log("deleted image: ", item.filename);
+      }
+     });
+    });
+   }
+
+   await dataItem.save();
+   const dataSegar = await Item.findOne({
+    where: {toko_id: req.user.toko_id, item_id: req.params.item_id},
+    include: [
+     {
+      model: Image,
+      as: "gambar",
+      attributes: ["filename"],
+     },
+     {
+      model: Toko,
+      as: "toko",
+      attributes: ["name"],
+     },
+    ],
+   });
+   const dataItemJson = dataSegar.toJSON();
+   dataItemJson.toko = dataItemJson.toko.name;
+   dataItemJson.gambar = dataItemJson.gambar.map(
+    (a) => `${process.env.BASE_URL}/images/${a.filename}`
+   );
+
+   return res.status(200).json(dataItemJson);
+  } catch (error) {
+   return res
+    .status(500)
+    .json({message: error.message || "Internal server error!"});
+  }
+ },
 };
