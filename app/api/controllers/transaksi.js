@@ -202,7 +202,8 @@ module.exports = {
     ],
     attributes,
    });
-   if (!dataTransaksi) res.status(404).json({message: "Transaksi not found"});
+   if (!dataTransaksi)
+    return res.status(404).json({message: "Transaksi not found"});
    const dataTransaksiJson = JSON.parse(JSON.stringify(dataTransaksi));
    dataTransaksiJson.qr = `${process.env.BASE_URL}/qr/${dataTransaksiJson.transaksi_id}`;
    return res.status(200).json(dataTransaksiJson);
