@@ -168,7 +168,7 @@ module.exports = {
       return created_at.getFullYear();
      })
     )
-   );
+   ).reverse();
 
    const datasets = [
     {
