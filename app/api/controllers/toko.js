@@ -9,6 +9,7 @@ const {
  Image,
  PaymentMethod,
  Transaksi,
+ Pengeluaran,
 } = require("../../../models");
 
 const cleanCategory = require("../../../helper/clean-category");
@@ -57,6 +58,10 @@ module.exports = {
    includeOptions.push({
     model: Transaksi,
     as: "transaksi",
+   });
+   includeOptions.push({
+    model: Pengeluaran,
+    as: "pengeluaran",
    });
   }
 
@@ -124,6 +129,7 @@ module.exports = {
     .map((a) => a.total_harga)
     .reduce((a, b) => a + b, 0);
    dataTokoJson.transaksi = dataTokoJson.transaksi.length;
+   dataTokoJson.pengeluaran = dataTokoJson.pengeluaran.length;
   }
 
   dataTokoJson.items = dataByTypeKategori;
