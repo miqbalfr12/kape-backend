@@ -94,7 +94,6 @@ module.exports = {
    acc[key] = [];
    return acc;
   }, {});
-  console.log(dataTypeKategori);
 
   const dataByTypeKategori = dataType.reduce((acc, t) => {
    const categorizedItems = dataItemJson
@@ -103,7 +102,8 @@ module.exports = {
      const cleanedCategory = cleanCategory(item.kategori);
 
      console.log(t, cleanedCategory);
-     dataTypeKategori[t].push(cleanedCategory);
+     if (!dataTypeKategori[t].includes(cleanedCategory))
+      dataTypeKategori[t].push(cleanedCategory);
 
      if (!catAcc[cleanedCategory]) {
       catAcc[cleanedCategory] = [];
@@ -116,7 +116,6 @@ module.exports = {
    acc[t] = categorizedItems;
    return acc;
   }, {});
-  console.log(dataTypeKategori);
 
   if (req?.user) {
    dataTokoJson.kategori = dataTypeKategori;

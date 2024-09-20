@@ -31,7 +31,7 @@ module.exports = {
 
    if (payload.payment_method !== "cash") {
     if (!dataPayment || dataPayment.length === 0) {
-     return res.json({
+     return res.status(404).json({
       payment: payload.payment_method,
       message: "Payment method not found",
      });
@@ -44,7 +44,7 @@ module.exports = {
     console.log({choiceMethods});
 
     if (!choiceMethods?.is_active) {
-     return res.json({
+     return res.status(422).json({
       payment: payload.payment_method,
       message: "Payment Method tidak aktif",
      });
