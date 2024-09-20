@@ -16,6 +16,8 @@ const itemRouter = require("./app/api/routes/item");
 const transaksiRouter = require("./app/api/routes/transaksi");
 const qrController = require("./app/api/controllers/qr");
 const paymentRouter = require("./app/api/routes/payment");
+const activityRouter = require("./app/api/routes/activity");
+const pengeluaranRouter = require("./app/api/routes/pengeluaran");
 
 const app = express();
 const URL = "/api/v1.0.0";
@@ -43,6 +45,8 @@ app.use(`${URL}/kasir`, kasirRouter);
 app.use(`${URL}/item`, itemRouter);
 app.use(`${URL}/transaksi`, transaksiRouter);
 app.use(`${URL}/payment`, paymentRouter);
+app.use(`${URL}/activity`, activityRouter);
+app.use(`${URL}/pengeluaran`, pengeluaranRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
