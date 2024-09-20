@@ -146,23 +146,6 @@ module.exports = {
 
    const combinedData = data_pendapatan.concat(data_pengeluaran);
 
-   //  const chart = {{
-   //     labels: [' 1', ' 2', ' 3', ' 4', ' 5', ' 6'], // change to cost
-   //     datasets: [
-   //         {
-   //             data: [1, 7, 6, 4, 2, 5], // change to time, if tanggal diberikan jam, if bulan berikan tanggal, if tahun berikan bulan
-   //             strokeWidth: 2,
-   //             color: (opacity = 1) => `rgba(255,0,0,${opacity})`, // optional
-   //         },
-   //         {
-   //             data: [2, 4, 6, 8, 8, 2], // change to time, if tanggal diberikan jam, if bulan berikan tanggal, if tahun berikan bulan
-   //             strokeWidth: 2,
-   //             color: (opacity = 1) => `rgba(0,0,102, ${opacity})`, // optional
-   //         }
-   //     ],
-   //     legend: ['Pendapatan', 'Pengeluaran'],
-   // }}
-
    const data = combinedData.sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
    );
@@ -182,6 +165,7 @@ module.exports = {
       if (tahun) {
        return created_at.getMonth() + 1;
       }
+      return created_at.getFullYear();
      })
     )
    );
@@ -190,12 +174,10 @@ module.exports = {
     {
      data: Array(labels.length).fill(0), // pendapatan tergantung waktu if tanggal diberikan jam, if bulan berikan tanggal, if tahun berikan bulan
      strokeWidth: 2,
-     color: (opacity = 1) => `rgba(0, 255, 0, ${opacity})`, //green
     },
     {
      data: Array(labels.length).fill(0),
      strokeWidth: 2,
-     color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // red
     },
    ];
 
@@ -213,6 +195,8 @@ module.exports = {
      timeLabel = created_at.getDate();
     } else if (tahun) {
      timeLabel = created_at.getMonth() + 1;
+    } else {
+     timeLabel = created_at.getFullYear();
     }
 
     // Cari indeks dari label yang sesuai dengan waktu activity
