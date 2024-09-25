@@ -331,7 +331,7 @@ module.exports = {
      const minutesDifference = timeDifference / (1000 * 60);
      const hoursDifference = timeDifference / (1000 * 60 * 60);
      if (hoursDifference < 1) {
-      res.status(403).json({
+      res.status(425).json({
        message: `Reset password hanya dapat dilakukan sekali dalam 1 jam! Silahkan coba kembali dalam ${(
         60 - minutesDifference
        ).toFixed(0)} menit lagi!`,
@@ -443,7 +443,7 @@ module.exports = {
      transporter
       .sendMail(message)
       .then((info) => {
-       return res.status(201).json({
+       return res.status(202).json({
         message:
          "Password Akun Anda berhasil direset, Password baru telah terkirim lewat email.",
         password,
