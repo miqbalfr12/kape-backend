@@ -12,7 +12,8 @@ const isLoginUser = async (req, res, next) => {
   const data = jwt.verify(token, config.jwtKey);
 
   console.log(data);
-  const exp = data.iat + 60 * 60 * 12;
+  //   const exp = data.iat + 60 * 60 * 12; // 12 jam
+  const exp = data.iat + 60; // 1 menit
   const currentTime = Math.floor(Date.now() / 1000);
   const timeLeft = exp - currentTime;
   console.log({iat: data.iat, exp, currentTime, timeLeft});
