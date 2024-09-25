@@ -454,7 +454,7 @@ module.exports = {
       });
     });
    } else {
-    res.status(403).json({
+    res.status(404).json({
      message: "email yang anda masukkan belum terdaftar.",
     });
    }
