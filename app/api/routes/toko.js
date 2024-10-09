@@ -20,7 +20,7 @@ router.get("/:toko_id", getToko);
 router.get("/item", isLoginUser, getItems);
 router.post(
  "/item",
- multer({dest: os.tmpdir(), limits: {fileSize: 5 * 1024 * 1024}}).array(
+ multer({dest: os.tmpdir(), limits: {fileSize: 100 * 1024 * 1024}}).array(
   "gambar"
  ),
  isLoginUser,
