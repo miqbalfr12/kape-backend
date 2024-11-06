@@ -142,6 +142,16 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
    .filter((a) => a.status_transaksi === "completed")
    .reduce((total, item) => total + item.jumlah_harga_item, 0);
 
+  const pie = data_pendapatan.reduce((acc, a) => {
+   const found = acc.find((item) => item.kategori === a.produk_kategori);
+   if (found) {
+    found.jumlah += a.jumlah;
+   } else {
+    acc.push({kategori: a.produk_kategori, jumlah: a.jumlah});
+   }
+   return acc;
+  }, []);
+
   const combinedData = data_pendapatan.concat(data_pengeluaran);
 
   const data = combinedData.sort(
@@ -217,12 +227,35 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
    legend: ["Pendapatan", "Pengeluaran"],
   };
 
+  const laporan = {
+   chart: {
+    labels,
+    datasets: [
+     {
+      label: "Pengeluaran",
+      data: datasets[1].data,
+      borderColor: "red",
+     },
+     {
+      label: "Pendapatan",
+      data: datasets[0].data,
+      borderColor: "green",
+     },
+    ],
+   },
+   pie: {
+    xArray: pie.map((item) => item.kategori),
+    yArray: pie.map((item) => item.jumlah),
+   },
+  };
+
   const response = {
    data: {
     total_pendapatan,
     total_pengeluaran,
     data,
     chart,
+    laporan,
    },
    statusCode: 200,
   };
@@ -339,7 +372,29 @@ module.exports = {
     </tr>
    </table>`;
   };
-  console.log(response.data.chart);
+  const script = `<script>
+      const xArray = ${JSON.stringify(response.data.laporan.pie.xArray)};
+      const yArray = ${JSON.stringify(response.data.laporan.pie.yArray)};
+
+      const data = [{labels:xArray, values:yArray, hole:.4, type:"pie"}];
+
+      Plotly.newPlot("myPlot", data, {},{displayModeBar: false});
+    </script>
+    <canvas id="myChart" style="width:100%;height:300px"/>
+    <script>
+        const xValues = ${JSON.stringify(response.data.laporan.chart.labels)};
+        new Chart("myChart", {
+          type: "line",
+          data: {
+            labels: xValues,
+            datasets: ${JSON.stringify(response.data.laporan.chart.datasets)}
+          },
+          options: {
+            animation: false,
+            legend: {display: true}
+          }
+        });
+      </script>`;
   const html = `<head>
  <script src='https://cdn.tailwindcss.com'></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
@@ -374,37 +429,7 @@ module.exports = {
   </div>
   <div class='grow mx-6 flex flex-col-reverse justify-end'>
     <div id="myPlot" style="width:100%;height:400px"></div>
-    <script>
-      const xArray = ["Kategori 1", "Kategori 2", "Kategori 3", "Kategori 4", "Kategori 5"];
-      const yArray = [55, 49, 44, 24, 15];
-
-      const data = [{labels:xArray, values:yArray, hole:.4, type:"pie"}];
-
-      Plotly.newPlot("myPlot", data, {},{displayModeBar: false});
-    </script>
-    <canvas id="myChart" style="width:100%;height:300px"/>
-    <script>
-        const xValues = [1 , 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
-        new Chart("myChart", {
-          type: "line",
-          data: {
-            labels: xValues,
-            datasets: [{ 
-              label: "Pengeluaran",
-              data: [1300, 3800, 2800, 2700, 3000, 1600, 4000, 1700, 2100, 3500, 3200, 2500, 1000, 3300, 2900, 2600, 3700, 2000, 1200, 3100, 1900, 1400, 1800, 2300, 2200, 3900, 1500, 3600, 2400, 3400],
-              borderColor: "red",
-            }, { 
-              label: "Pendapatan",
-              data: [1200, 3000, 3700, 2400, 2900, 1400, 2700, 3200, 3400, 2200, 1300, 2500, 2100, 1500, 2300, 1600, 3100, 2800, 4000, 3600, 1700, 3900, 3300, 3800, 1800, 1000, 2600, 3500, 1900, 2000],
-              borderColor: "green",
-            }]
-          },
-          options: {
-            animation: false,
-            legend: {display: true}
-          }
-        });
-      </script>
+    ${script}
   </div>
   <div class='mx-6 my-2 text-center'>
    Dicetak pada tanggal: ${new Date().toLocaleString(
