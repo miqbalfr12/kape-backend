@@ -300,7 +300,7 @@ module.exports = {
    ).length;
    const TotalPendapatan = data
     .filter((d) => d.type === "pendapatan")
-    .reduce((a, b) => a + b.total_harga_transaksi, 0);
+    .reduce((a, b) => a + b.jumlah_harga_item, 0);
    const TotalPengeluaran = data
     .filter((d) => d.type === "pengeluaran")
     .reduce((a, b) => a + b.total_harga, 0);
