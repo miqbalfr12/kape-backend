@@ -133,14 +133,14 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
    return d;
   });
 
-  const total_pengeluaran = data_pengeluaran
-   .filter((a) => a.status === "completed")
-   .reduce((total, item) => total + item.total_harga, 0);
-
-  const total_pendapatan = data_pendapatan.reduce(
-   (total, item) => total + item.jumlah_harga_item,
+  const total_pengeluaran = data_pengeluaran.reduce(
+   (total, item) => total + item.total_harga,
    0
   );
+
+  const total_pendapatan = data_pendapatan
+   .filter((a) => a.status === "completed")
+   .reduce((total, item) => total + item.jumlah_harga_item, 0);
 
   const combinedData = data_pendapatan.concat(data_pengeluaran);
 
