@@ -92,6 +92,7 @@ module.exports = {
     toko_id: req.user.toko_id,
     transaksi_at: Date.now(),
     pelanggan: payload.pelanggan,
+    status: payload.payment_method === "cash" ? "completed" : "pending",
     total_harga,
     payment_method: payload.payment_method,
     qr: key ? key : null,
@@ -157,14 +158,20 @@ module.exports = {
      exclude: ["updated_at", "updated_by", "deleted_at", "deleted_by"],
     },
    });
-   if (!dataTransaksi) res.status(404).json({message: "Transaksi not found"});
+   if (!dataTransaksi)
+    return res.status(404).json({message: "Transaksi not found"});
    const dataTransaksiJson = JSON.parse(JSON.stringify(dataTransaksi));
    dataTransaksiJson.map((d, i) => {
     d.kasir = d.kasir.fullname;
     d.qr = `${process.env.BASE_URL}/qr/${d.transaksi_id}`;
    });
-
-   return res.status(200).json(dataTransaksiJson);
+   return res
+    .status(200)
+    .json(
+     dataTransaksiJson.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+     )
+    );
   } catch (error) {
    return res
     .status(500)
@@ -207,6 +214,27 @@ module.exports = {
    const dataTransaksiJson = JSON.parse(JSON.stringify(dataTransaksi));
    dataTransaksiJson.qr = `${process.env.BASE_URL}/qr/${dataTransaksiJson.transaksi_id}`;
    return res.status(200).json(dataTransaksiJson);
+  } catch (error) {
+   return res
+    .status(500)
+    .json({message: error.message || "Internal server error!"});
+  }
+ },
+
+ actionTransaksi: async (req, res) => {
+  const {status} = req.body;
+
+  if (!status) return res.status(400).json({message: "Status is required"});
+
+  try {
+   const dataTransaksi = await Transaksi.findOne({
+    where: {transaksi_id: req.params.transaksi_id},
+   });
+   if (!dataTransaksi)
+    return res.status(404).json({message: "Transaksi not found"});
+   dataTransaksi.status = status;
+   await dataTransaksi.save();
+   return res.status(200).json({message: "Transaksi updated successfully"});
   } catch (error) {
    return res
     .status(500)
