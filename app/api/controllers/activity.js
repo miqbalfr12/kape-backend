@@ -139,7 +139,7 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
   );
 
   const total_pendapatan = data_pendapatan
-   .filter((a) => a.status === "completed")
+   .filter((a) => a.status_transaksi === "completed")
    .reduce((total, item) => total + item.jumlah_harga_item, 0);
 
   const combinedData = data_pendapatan.concat(data_pengeluaran);
