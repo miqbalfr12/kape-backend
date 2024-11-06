@@ -139,7 +139,7 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
   );
 
   const total_pendapatan = data_pendapatan.reduce(
-   (total, item) => total + item.total_harga_transaksi,
+   (total, item) => total + item.jumlah_harga_item,
    0
   );
 
@@ -204,7 +204,7 @@ const activity = async ({toko_id, tahun, bulan, tanggal, needToko}) => {
    if (labelIndex !== -1) {
     if (activity.type === "pendapatan") {
      // Menambahkan total_harga_transaksi ke dataset pendapatan
-     datasets[0].data[labelIndex] += activity.total_harga_transaksi;
+     datasets[0].data[labelIndex] += activity.jumlah_harga_item;
     } else if (activity.type === "pengeluaran") {
      // Menambahkan total_harga ke dataset pengeluaran
      datasets[1].data[labelIndex] += activity.total_harga;
