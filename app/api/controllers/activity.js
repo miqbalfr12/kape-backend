@@ -495,7 +495,7 @@ module.exports = {
         data.type == "pengeluaran" && "text-red-500"
        }'>${
         data.type == "pendapatan"
-         ? data.total_harga_transaksi.toLocaleString("id-ID")
+         ? data.jumlah_harga_item.toLocaleString("id-ID")
          : `-${data.total_harga.toLocaleString("id-ID")}`
        }</td>
      </tr>`;
