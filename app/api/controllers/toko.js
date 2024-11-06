@@ -128,7 +128,10 @@ module.exports = {
     dataTokoJson.transaksi
      .filter((a) => a.status === "completed")
      .map((a) => a.total_harga)
-     .reduce((a, b) => a + b, 0) - dataTokoJson.pengeluaran || 0;
+     .reduce((a, b) => a + b, 0) -
+    dataTokoJson.pengeluaran
+     .map((a) => a.total_harga)
+     .reduce((a, b) => a + b, 0);
    dataTokoJson.transaksi = dataTokoJson.transaksi.length;
    dataTokoJson.pengeluaran = dataTokoJson.pengeluaran.length;
   }
