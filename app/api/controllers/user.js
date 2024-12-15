@@ -57,6 +57,10 @@ module.exports = {
       req.file.originalname
      )}`;
      const savePath = path.join(imgDir, newFileName);
+     if (fs.existsSync(savePath)) {
+      fs.unlinkSync(savePath);
+      console.log("File lama berhasil dihapus.");
+     }
      fs.copyFileSync(req.file.path, savePath);
      fs.unlinkSync(req.file.path);
      payload.profile_photo = `${process.env.BASE_URL}/images/pp/${newFileName}`;
