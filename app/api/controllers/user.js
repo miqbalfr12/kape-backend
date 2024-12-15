@@ -53,13 +53,20 @@ module.exports = {
       console.log("Directory created successfully");
      }
 
-     const newFileName = `${user.user_id}${path.extname(
+     const newFileName = `${user.user_id}-${new Date().getTime()}${path.extname(
       req.file.originalname
      )}`;
      const savePath = path.join(imgDir, newFileName);
-     if (fs.existsSync(savePath)) {
-      fs.unlinkSync(savePath);
-      console.log("File lama berhasil dihapus.");
+     if (user.profile_photo) {
+      const oldFile = path.join(imgDir, user.profile_photo.split("/").pop());
+      try {
+       if (fs.existsSync(oldFile)) {
+        fs.unlinkSync(oldFile);
+        console.log("File lama berhasil dihapus.");
+       }
+      } catch (err) {
+       console.error("Terjadi kesalahan saat menghapus file lama:", err);
+      }
      }
      fs.copyFileSync(req.file.path, savePath);
      fs.unlinkSync(req.file.path);
