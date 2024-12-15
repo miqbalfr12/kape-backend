@@ -189,6 +189,29 @@ module.exports = {
   }
  },
 
+ updateToko: async (req, res, next) => {
+  const dataToko = await Toko.findOne({
+   where: {
+    [req.user?.role === "pemilik" ? "user_id" : "toko_id"]:
+     req.user?.role === "pemilik"
+      ? req.user?.user_id
+      : req.params?.toko_id || req.user?.toko_id,
+   },
+  });
+
+  if (!dataToko) {
+   return res.status(404).json({message: "Toko not found"});
+  }
+
+  const payload = req.body;
+
+  dataToko.set(payload);
+  dataToko.updated_by = req.user.user_id;
+  const dataTokoNew = await dataToko.save();
+
+  return res.status(200).json(dataTokoNew);
+ },
+
  getItems: async (req, res, next) => {
   if (!req.user.toko_id) {
    return res.status(404).json({message: "User does not have toko"});

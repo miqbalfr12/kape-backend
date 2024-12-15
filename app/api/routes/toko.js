@@ -5,6 +5,7 @@ const {isLoginUser} = require("../../middleware/auth");
 const {
  getToko,
  createToko,
+ updateToko,
  getItems,
  getItem,
  createItem,
@@ -15,6 +16,7 @@ const multer = require("multer");
 
 router.get("/", isLoginUser, getToko);
 router.post("/", isLoginUser, createToko);
+router.put("/", isLoginUser, updateToko);
 router.get("/:toko_id", getToko);
 
 router.get("/item", isLoginUser, getItems);

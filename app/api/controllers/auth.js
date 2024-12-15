@@ -280,6 +280,7 @@ module.exports = {
          email: getUser.email,
          birth_date: getUser.birth_date,
          phone_number: getUser.phone_number,
+         profile_photo: getUser.profile_photo,
         },
        },
        config.jwtKey
